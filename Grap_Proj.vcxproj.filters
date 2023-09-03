@@ -22,4 +22,69 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="backwall1.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="blackboard.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="blackboard1.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="ceiling.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="ceiling1.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="desk.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="desk1.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="door.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="door1.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="floor.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="floor1.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="pole.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="pole1.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="sdesk.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="sdesk1.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="sound.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="sound1.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="window.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="window1.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+    <Image Include="backwall.bmp">
+      <Filter>Source Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
