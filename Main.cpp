@@ -5,16 +5,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
+// Global Declaration of variables
 // Initialisation of Arrays
+GLfloat light[] = { 1.0,1.0,1.0,1 };
+GLfloat light_position0[] = { 0,28,20,1.0 };
 GLfloat light_position1[] = { 0,28,-20,1.0 };
+GLfloat white_light[] = { 1.0,1.0,1.0,1.0 };
 GLfloat model_ambient[] = { 0.05f,0.05f,0.05f,1.0f };
 GLfloat mat_specular[] = { 0.8,1.0,1.0,1.0 };
 GLfloat mat_shininess[] = { 5.0 };
 GLfloat mat_ambient[] = { 0.1,0.1,0.1,1 };
-GLfloat white_light[] = { 1.0,1.0,1.0,1.0 };
-GLfloat light[] = { 1.0,1.0,1.0,1 };
-GLfloat light_position0[] = { 0,28,20,1.0 };
 GLfloat	no_mat[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat	mat_diffuse1[] = { 0.1f, 0.5f, 0.8f, 1.0f };
 GLfloat	no_shininess[] = { 0.0f };
@@ -23,14 +23,17 @@ GLfloat sound[] = { 0.9,0.9,0.9,1 };
 GLint	WinWidth;
 GLint	WinHeight;
 
+// Declare texture variables
+GLuint texBlackboard, texWindow, texDesk, texSound, texCeiling, texDoor, texFloor, texBackwall;
+
 // Definition of viewpoint for viewer
 typedef struct EyePoint
 {
-	GLfloat	x,y,z;
+	GLfloat	x, y, z;
 }
 EyePoint;
-EyePoint 	myEye;
-EyePoint    vPoint;
+EyePoint myEye;
+EyePoint vPoint;
 GLfloat pro_up_down = 29.0f;
 GLfloat vAngle = 0;
 
@@ -49,16 +52,16 @@ void grab(void)
 
 	// Calculate the length of the pixel data [Width and Height]
 	// Initialise pixel length for each row. Each pixel will consist of RGB colour component [multiplication by 3]
-	i = WinWidth * 3; 
+	i = WinWidth * 3;
 
 	// Calculate padding for pixel data [multiples of 4 bytes]
-	while (i % 4 != 0)      
-		++i;	                      
+	while (i % 4 != 0)
+		++i;
 
 	// Calculate total length of pixel data for image
 	PixelDataLength = i * WinHeight;
 	// Memory allocation to dynamcially store pixel data
-	pPixelData = (GLubyte*) malloc(PixelDataLength);
+	pPixelData = (GLubyte*)malloc(PixelDataLength);
 	if (pPixelData == 0)
 		exit(0);
 	pDummyFile = fopen("dummy.bmp", "rb");
@@ -69,7 +72,7 @@ void grab(void)
 		exit(0);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	glReadPixels(0, 0, WinWidth, WinHeight, GL_BGR_EXT, GL_UNSIGNED_BYTE, pPixelData);
-	
+
 	// BMP header from dummy bitmap file is written to the grab bitmap file. Ensures output of BMP has proper BMP header.
 	fread(BMP_Header, sizeof(BMP_Header), 1, pDummyFile);
 	fwrite(BMP_Header, sizeof(BMP_Header), 1, pWritingFile);
@@ -191,11 +194,6 @@ GLuint load_texture(const char* file_name)
 }
 
 
-
-
-/**********************************��������������������************************************/
-GLuint texblackboard, texwindow, texdesk, texsound;
-GLuint texceiling, texdoor, texfloor, texbackwall;
 /*******************************������غ���**************************************************/
 
 //���ƽ�������󳡾�
@@ -210,7 +208,7 @@ void drawscence()
 
 	//���Ȼ����컨��
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texceiling);
+	glBindTexture(GL_TEXTURE_2D, texCeiling);
 	glColor3f(0.3, 0.3, 0.3);
 	glBegin(GL_QUADS);
 	glNormal3f(0.0f, -1.0f, 0.0f);	                  //���ڶ��巨������
@@ -243,7 +241,7 @@ void drawscence()
 	glVertex3f(-40.0f, 0.0f, -30.0f);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texwindow);
+	glBindTexture(GL_TEXTURE_2D, texWindow);
 	for (int n = 0; n <= 1; n++)
 	{
 		glBegin(GL_QUADS);
@@ -265,7 +263,7 @@ void drawscence()
 	glVertex3f(40.0f, 0.0f, -30.0f);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texwindow);
+	glBindTexture(GL_TEXTURE_2D, texWindow);
 	glBegin(GL_QUADS);
 	glNormal3f(-1.0, 0.0f, 0.0f);	                  //���ڶ��巨������
 	glTexCoord2f(1.0f, 0.0f); glVertex3f(39.5, 10, 10);
@@ -276,7 +274,7 @@ void drawscence()
 	glDisable(GL_TEXTURE_2D);
 	//���ƺ��ǽ
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texbackwall);
+	glBindTexture(GL_TEXTURE_2D, texBackwall);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	glBegin(GL_QUADS);
 	glNormal3f(0.0f, 0.0f, 1.0f); //���ڶ��巨������
@@ -291,7 +289,7 @@ void drawscence()
 	glEnd();
 	//����ǰ��ǽ
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texbackwall);
+	glBindTexture(GL_TEXTURE_2D, texBackwall);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	glBegin(GL_QUADS);
 	glNormal3f(0.0f, 0.0f, 1.0f); //���ڶ��巨������
@@ -306,7 +304,7 @@ void drawscence()
 	glEnd();
 	//���ƺڰ�
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texblackboard);
+	glBindTexture(GL_TEXTURE_2D, texBlackboard);
 	glBegin(GL_QUADS);
 	glNormal3f(0.0f, 0.0f, 1.0f); //���ڶ��巨������
 	glTexCoord2f(0.0f, 0.0f); glVertex3f(-20.0, 8.0f, -29.9f);
@@ -318,7 +316,7 @@ void drawscence()
 	//����
 	glColor3f(0.521f, 0.121f, 0.0547f);
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texdoor);
+	glBindTexture(GL_TEXTURE_2D, texDoor);
 	glBegin(GL_QUADS);
 	glNormal3f(1.0f, 0.0f, 0.0f);
 	glTexCoord2f(0.0f, 0.0f); glVertex3f(-39.9f, 0.0f, -25.0f);
@@ -704,7 +702,7 @@ void initial()
 	glShadeModel(GL_SMOOTH);
 	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);	//ָ��������ɫ����
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);	//ָ�����϶Ծ����ķ���
-	glEnable(GL_DEPTH_TEST);//	
+	glEnable(GL_DEPTH_TEST);
 }
 void print()
 {
@@ -743,7 +741,7 @@ int main(int argc, char* argv[])
 	glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
 	glutInitWindowPosition(400, 0);
 	glutInitWindowSize(800, 600);
-	glutCreateWindow("classroom");
+	glutCreateWindow("Grap Proj");
 	initial();
 	glutDisplayFunc(&myDisplay);
 	glutReshapeFunc(reshape);
@@ -751,13 +749,13 @@ int main(int argc, char* argv[])
 	glutSpecialFunc(OnSpecial);
 	glutIdleFunc(OnIdle);
 	/***************************************��������***********************************************/
-	texblackboard = load_texture("blackboard.bmp");
-	texwindow = load_texture("window.bmp");
-	texsound = load_texture("sound.bmp");
-	texceiling = load_texture("ceiling.bmp");
-	texdoor = load_texture("door.bmp");
-	texfloor = load_texture("floor.bmp");
-	texbackwall = load_texture("backwall.bmp");
+	texBlackboard = load_texture("blackboard.bmp");
+	texWindow = load_texture("window.bmp");
+	texSound = load_texture("sound.bmp");
+	texCeiling = load_texture("ceiling.bmp");
+	texDoor = load_texture("door.bmp");
+	texFloor = load_texture("floor.bmp");
+	texBackwall = load_texture("backwall.bmp");
 	/************************************************************************************************/
 	print();
 	//��ʼ��ʾ
