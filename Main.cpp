@@ -4,6 +4,7 @@
 #include<math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 
 // Global Declaration of variables
 // Initialisation of Arrays
@@ -18,28 +19,48 @@ GLfloat mat_ambient[] = { 0.1,0.1,0.1,1 };
 GLfloat	no_mat[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 GLfloat	mat_diffuse1[] = { 0.1f, 0.5f, 0.8f, 1.0f };
 GLfloat	no_shininess[] = { 0.0f };
-GLfloat sound[] = { 0.9,0.9,0.9,1 };
 
 GLint	WinWidth;
 GLint	WinHeight;
 
 // Declare texture variables
-GLuint texBlackboard, texWindow, texDesk, texSound, texCeiling, texDoor, texFloor, texBackwall;
+GLuint texSmartBoard, texWindow, texDesk, texCeiling, texDoor, texFloor, texBackwall;
 
 // Definition of viewpoint for viewer
 typedef struct EyePoint
 {
 	GLfloat	x, y, z;
 }
+
 EyePoint;
 EyePoint myEye;
 EyePoint vPoint;
 GLfloat pro_up_down = 29.0f;
 GLfloat vAngle = 0;
 
+// Function declarations: 
+
+int is_Num_Pow_2(int n)
+{
+	if (n <= 0)
+		return 0;
+
+	return (n & (n - 1)) == 0;
+}
+
+// Function to convert RGB to OpenGL Colour Codes
+void RGBtoGLColour(int r, int g, int b)
+{
+	GLfloat red = static_cast<GLfloat>(r) / 255.0f;
+	GLfloat green = static_cast<GLfloat>(g) / 255.0f;
+	GLfloat blue = static_cast<GLfloat>(b) / 255.0f;
+
+	glColor3f(red, green, blue);
+}
+
 
 // Functions to load our Bitmaps into textures
-// Defintion of the length of the Bitmap header 
+// Definition of the length of the Bitmap header 
 #define BMP_Header_Length 54
 void grab(void)
 {
@@ -70,6 +91,7 @@ void grab(void)
 	pWritingFile = fopen("grab.bmp", "wb");
 	if (pWritingFile == 0)
 		exit(0);
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	glReadPixels(0, 0, WinWidth, WinHeight, GL_BGR_EXT, GL_UNSIGNED_BYTE, pPixelData);
 
@@ -86,72 +108,74 @@ void grab(void)
 	fclose(pDummyFile); fclose(pWritingFile); free(pPixelData);
 }
 
-int is_Num_Pow_2(int n)
-{
-	if (n <= 0)
-		return 0;
-	return (n & (n - 1)) == 0;
-}
 
-
-
-/****************************����һ��λͼ��Ϊ���������ص����������**********************************************/
+// Function that receives a Bitmap as a parameter and returns the relevant texture number
 GLuint load_texture(const char* file_name)
 {
 	GLint width, height, total_bytes;
 	GLubyte* pixels = 0;
 	GLint last_texture_ID = 0;
 	GLuint texture_ID = 0;
-	// ���ļ������ʧ�ܣ�����
+
+	// Open the Bitmap, if it fails to open we return nothing
 	FILE* pFile = fopen(file_name, "rb");
 	if (pFile == 0)
 		return 0;
-	// ��ȡ�ļ���ͼ��Ŀ��Ⱥ͸߶�
+
+	// The height and width is read of the opened image
 	fseek(pFile, 0x0012, SEEK_SET);
 	fread(&width, 4, 1, pFile);
 	fread(&height, 4, 1, pFile);
 	fseek(pFile, BMP_Header_Length, SEEK_SET);
-	// ����ÿ��������ռ�ֽ����������ݴ����ݼ����������ֽ���
+
+	// The number of bytes of each line of pixels is calculated, then the total pixel bytes is calculated.
 	{
 		GLint line_bytes = width * 3;
 		while (line_bytes % 4 != 0)
 			++line_bytes;
 		total_bytes = line_bytes * height;
 	}
-	// �����������ֽ��������ڴ�
+
+	// Memory allocation of the total pixel bytes
 	pixels = (GLubyte*)malloc(total_bytes);
 	if (pixels == 0)
 	{
 		fclose(pFile);
 		return 0;
 	}
-	// ��ȡ��������
+
+	// Now read the pixel data
 	if (fread(pixels, total_bytes, 1, pFile) <= 0)
 	{
 		free(pixels);
 		fclose(pFile);
 		return 0;
 	}
-	// �ھɰ汾�� OpenGL ��
-	// ���ͼ��Ŀ��Ⱥ͸߶Ȳ��ǵ������η�������Ҫ��������
-	// ���ﲢû�м�� OpenGL �汾�����ڶ԰汾�����ԵĿ��ǣ����ɰ汾����
-	// ���⣬�����Ǿɰ汾�����°汾��
-	// ��ͼ��Ŀ��Ⱥ͸߶ȳ�����ǰ OpenGL ʵ����֧�ֵ����ֵʱ��ҲҪ��������
+
+	/*
+	In the event of the height and width not being integer powers,
+	or even if the height and width exceed the maximum height and width
+	supported by the current implementation of OpenGL, 
+	zooming of the image occurs.
+	*/
 	{
 		GLint max;
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max);
 		if (!is_Num_Pow_2(width) || !is_Num_Pow_2(height) || width > max || height > max)
 		{
+			// Set a new width and height after we scale.
 			const GLint new_width = 256;
-			const GLint new_height = 256; // �涨���ź��µĴ�СΪ�߳���������
+			const GLint new_height = 256; 
 			GLint new_line_bytes, new_total_bytes;
 			GLubyte* new_pixels = 0;
-			// ����ÿ����Ҫ���ֽ��������ֽ���
+
+			// The number of bytes of each line of pixels is calculated, then the total pixel bytes is calculated.
 			new_line_bytes = new_width * 3;
 			while (new_line_bytes % 4 != 0)
 				++new_line_bytes;
 			new_total_bytes = new_line_bytes * new_height;
-			// �����ڴ�
+
+			// Memory allocation occurs
 			new_pixels = (GLubyte*)malloc(new_total_bytes);
 			if (new_pixels == 0)
 			{
@@ -159,16 +183,19 @@ GLuint load_texture(const char* file_name)
 				fclose(pFile);
 				return 0;
 			}
-			// ������������
+
+			// Scale the pixels
 			gluScaleImage(GL_RGB, width, height, GL_UNSIGNED_BYTE, pixels, new_width, new_height, GL_UNSIGNED_BYTE, new_pixels);
-			// �ͷ�ԭ�����������ݣ��� pixels ָ���µ��������ݣ����������� width �� height
+			
+			// Free old pixel data (orignal) and assign pixels to new pixel data, then set width and height to new width and height
 			free(pixels);
 			pixels = new_pixels;
 			width = new_width;
 			height = new_height;
 		}
 	}
-	// ����һ���µ��������
+
+	// New texture number is allocated
 	glGenTextures(1, &texture_ID);
 	if (texture_ID == 0)
 	{
@@ -176,8 +203,9 @@ GLuint load_texture(const char* file_name)
 		fclose(pFile);
 		return 0;
 	}
-	// ���µ�����������������������������
-	// �ڰ�ǰ���Ȼ��ԭ���󶨵�������ţ��Ա��������лָ�
+
+	// Get the texture number of the original binding, so it can be restored, before the new texture is bound.
+	// Then the new texture is bound, then load and set texture parameters
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture_ID);
 	glBindTexture(GL_TEXTURE_2D, texture_ID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -187,31 +215,30 @@ GLuint load_texture(const char* file_name)
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, pixels);
 	glBindTexture(GL_TEXTURE_2D, last_texture_ID);
-	// ֮ǰΪ pixels ������ڴ����ʹ�� glTexImage2D �Ժ��ͷ�
-	// ��Ϊ��ʱ���������Ѿ��� OpenGL ���б�����һ�ݣ����ܱ����浽ר�ŵ�ͼ��Ӳ���У�
+
+	// Free previously allocated memory that was for pixels
 	free(pixels);
+
 	return texture_ID;
 }
 
 
-/*******************************������غ���**************************************************/
-
-//���ƽ�������󳡾�
-void drawscence()
+// Draw big scene of lab
+void drawbigscence()
 {
-	//���ò�����ز���
+	// Material parameters are set
 	glMaterialfv(GL_FRONT, GL_AMBIENT, no_mat);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse1);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
 	glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
 	glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
 
-	//���Ȼ����컨��
+	// Ceiling is drawn
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texCeiling);
 	glColor3f(0.3, 0.3, 0.3);
 	glBegin(GL_QUADS);
-	glNormal3f(0.0f, -1.0f, 0.0f);	                  //���ڶ��巨������
+	glNormal3f(0.0f, -1.0f, 0.0f);	// Definition of the normal vector
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(-40.0f, 30.0f, 30.0f);
 	glTexCoord2f(0.0f, 3.0f);
@@ -222,62 +249,58 @@ void drawscence()
 	glVertex3f(40.0f, 30.0f, 30.0f);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
-	//���Ƶذ�
+
+	// The floor is painted
 	glColor3f(0.8f, 1.0f, 0.8f);
 	glBegin(GL_QUADS);
-	glNormal3f(0.0f, 1.0f, 0.0f);	                  //���ڶ��巨������
+	glNormal3f(0.0f, 1.0f, 0.0f);	
 	glVertex3f(-40.0f, 0.0f, 30.0f);
 	glVertex3f(-40.0f, 0.0f, -30.0f);
 	glVertex3f(40.0f, 0.0f, -30.0f);
 	glVertex3f(40.0f, 0.0f, 30.0f);
 	glEnd();
-	//�������ǽ����ߴ���
+
+	// Left wall is drawn
 	glColor3f(0.8f, 0.8f, 0.8f);
 	glBegin(GL_QUADS);
-	glNormal3f(1.0f, 0.0f, 0.0f);	                  //���ڶ��巨������
+	glNormal3f(1.0f, 0.0f, 0.0f);	                  
 	glVertex3f(-40.0f, 0.0f, 30.0f);
 	glVertex3f(-40.0f, 30.0f, 30.0f);
 	glVertex3f(-40.0f, 30.0f, -30.0f);
 	glVertex3f(-40.0f, 0.0f, -30.0f);
 	glEnd();
+
+	// Right wall is drawn
+	glColor3f(0.8f, 0.8f, 0.8f);
+	glBegin(GL_QUADS);
+	glNormal3f(-1.0f, 0.0f, 0.0f); 
+	glVertex3f(40.0f, 0.0f, 30.0f);
+	glVertex3f(40.0f, 30.0f, 30.0f);
+	glVertex3f(40.0f, 30.0f, -30.0f);
+	glVertex3f(40.0f, 0.0f, -30.0f);
+	glEnd();
+
+	// Windows are drawn
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texWindow);
 	for (int n = 0; n <= 1; n++)
 	{
 		glBegin(GL_QUADS);
-		glNormal3f(1.0, 0.0f, 0.0f);	                  //���ڶ��巨������
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(-39.9, 10, -8 + n * 18);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(-39.9, 20, -8 + n * 18);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(-39.9, 20, -18 + n * 18);
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(-39.9, 10, -18 + n * 18);
+		glNormal3f(-1.0, 0.0f, 0.0f);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(39.9, 10, -8 + n * 18);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(39.9, 20, -8 + n * 18);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(39.9, 20, -18 + n * 18);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(39.9, 10, -18 + n * 18);
 		glEnd();
 	}
 	glDisable(GL_TEXTURE_2D);
-	//�����ұ�ǽ���ұߴ���
-	glColor3f(0.8f, 0.8f, 0.8f);
-	glBegin(GL_QUADS);
-	glNormal3f(-1.0f, 0.0f, 0.0f); //���ڶ��巨������
-	glVertex3f(40.0f, 0.0f, 30.0f);
-	glVertex3f(40.0f, 30.0f, 30.0f);
-	glVertex3f(40.0f, 30.0f, -30.0f);
-	glVertex3f(40.0f, 0.0f, -30.0f);
-	glEnd();
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texWindow);
-	glBegin(GL_QUADS);
-	glNormal3f(-1.0, 0.0f, 0.0f);	                  //���ڶ��巨������
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(39.5, 10, 10);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(39.5, 20, 10);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(39.5, 20, 0);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(39.5, 10, 0);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-	//���ƺ��ǽ
+
+	// Backwall is drawn
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texBackwall);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	glBegin(GL_QUADS);
-	glNormal3f(0.0f, 0.0f, 1.0f); //���ڶ��巨������
+	glNormal3f(0.0f, 0.0f, 1.0f);
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(-40.0f, 0.0f, 30.0f);
 	glTexCoord2f(0.0f, 1.0f);
@@ -287,12 +310,13 @@ void drawscence()
 	glTexCoord2f(1.0f, 0.0f);
 	glVertex3f(40.0f, 0.0f, 30.0f);
 	glEnd();
-	//����ǰ��ǽ
+
+	// Frontwall is drawn
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texBackwall);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	glBegin(GL_QUADS);
-	glNormal3f(0.0f, 0.0f, 1.0f); //���ڶ��巨������
+	glNormal3f(0.0f, 0.0f, 1.0f);
 	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(-40.0f, 0.0f, -30.0f);
 	glTexCoord2f(0.0f, 1.0f);
@@ -302,19 +326,21 @@ void drawscence()
 	glTexCoord2f(1.0f, 0.0f);
 	glVertex3f(40.0f, 0.0f, -30.0f);
 	glEnd();
-	//���ƺڰ�
+
+	// Smartboard is drawn
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texBlackboard);
+	glBindTexture(GL_TEXTURE_2D, texSmartBoard);
 	glBegin(GL_QUADS);
-	glNormal3f(0.0f, 0.0f, 1.0f); //���ڶ��巨������
+	glNormal3f(0.0f, 0.0f, 1.0f);
 	glTexCoord2f(0.0f, 0.0f); glVertex3f(-20.0, 8.0f, -29.9f);
 	glTexCoord2f(0.0f, 1.0f); glVertex3f(-20.0, 18.0f, -29.9f);
 	glTexCoord2f(1.0f, 1.0f); glVertex3f(20.0, 18.0f, -29.9f);
 	glTexCoord2f(1.0f, 0.0f); glVertex3f(20.0, 8.0f, -29.9f);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
-	//����
-	glColor3f(0.521f, 0.121f, 0.0547f);
+
+	// Door is drawn
+	//glColor3f(0.521f, 0.121f, 0.0547f);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texDoor);
 	glBegin(GL_QUADS);
@@ -325,228 +351,116 @@ void drawscence()
 	glTexCoord2f(1.0f, 0.0f); glVertex3f(-39.9f, 0.0f, -19.0f);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
-	//��������
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glPushMatrix();
-	glTranslatef(-37.5, 26.25f, -5.5f);
-	glScalef(1.0f, 1.5f, 1.0f);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, sound);
-	glutSolidCube(1.0f);
-	glPopMatrix();
-	glPushMatrix();
-	glTranslatef(37.5, 26.25f, -5.5f);
-	glScalef(1.0f, 1.5f, 1.0f);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, sound);
-	glutSolidCube(1.0f);
-	glPopMatrix();
-
-
 
 }
-/**************************************����ͶӰ��***********************************************/
+
+// Draw the desks
 void drawdesks()
 {
-	//������
+	// Specify desk colour
 	GLfloat desk[] = { 1,0.9647,0.56078 };
+
 	for (int y = 0; y <= 4; y++)
 	{
+		// Make tables on the left and right of lab
 		for (int x = 0; x <= 1; x++)
 		{
-			//�����ϱ�
-			glColor4f(1, 0.9647, 0.56078, 1);
+			// Top of Table
+			glColor3f(1, 0.9647, 0.56078);
 			glPushMatrix();
 			glTranslatef(-20.0 + x * 40, 8.1, -17.5 + y * 8);
-			glScalef(10, 0.2, 3);
+			glScalef(20, 0.2, 3);
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, desk);
 			glutSolidCube(1.0f);
 			glPopMatrix();
-			//�����±�
-			glColor4f(1, 0.9647, 0.56078, 1);
+
+			// Underneath Table
+			glColor3f(1, 0.9647, 0.56078);
 			glPushMatrix();
 			glTranslatef(-20.0 + x * 40, 6.1, -17.5 + y * 8);
-			glScalef(9, 0.2, 3);
-			glutSolidCube(1.0f);
-			glPopMatrix();
-			//����ǰ��
-			glColor4f(1, 0.9647, 0.56078, 1);
-			glPushMatrix();
-			glTranslatef(-20.0 + x * 40, 7, -18.9 + y * 8);
-			glScalef(10, 2, 0.2);
+			glScalef(19, 0.2, 3);
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, desk);
 			glutSolidCube(1.0f);
 			glPopMatrix();
-			//����
+
+			//Front of Table
+			glColor3f(1, 0.9647, 0.56078);
+			glPushMatrix();
+			glTranslatef(-20.0 + x * 40, 7, -18.9 + y * 8);
+			glScalef(20, 2, 0.2);
+			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, desk);
+			glutSolidCube(1.0f);
+			glPopMatrix();
+			
+			// Legs of table
 			glColor3f(0.0, 0.0, 0.0);
 			glBegin(GL_LINES);
-			glLineWidth(3.0f);
-			glVertex3f(-25.0 + x * 40, 6.0f, -19 + y * 8);
-			glVertex3f(-25.0 + x * 40, 0.0f, -19 + y * 8);
+			glLineWidth(5.0f);
+			// Vertices of left leg
+			glVertex3f(-30.0 + x * 40, 6.0f, -19 + y * 8);
+			glVertex3f(-30.0 + x * 40, 0.0f, -19 + y * 8);
 			glEnd();
 			glBegin(GL_LINES);
-			glLineWidth(3.0f);
-			glVertex3f(-15.0 + x * 40, 6.0f, -19 + y * 8);
-			glVertex3f(-15.0 + x * 40, 0.0f, -19 + y * 8);
-			glEnd();
-			glBegin(GL_LINES);
-			glLineWidth(3.0f);
-			glVertex3f(-25.0 + x * 40, 0.0f, -18 + y * 8);
-			glVertex3f(-25.0 + x * 40, 0.0f, -20 + y * 8);
-			glEnd();
-			glBegin(GL_LINES);
-			glLineWidth(3.0f);
-			glVertex3f(-15.0 + x * 40, 0.0f, -18 + y * 8);
-			glVertex3f(-15.0 + x * 40, 0.0f, -20 + y * 8);
+			glLineWidth(5.0f);
+			// Vertices of right leg
+			glVertex3f(-10.0 + x * 40, 6.0f, -19 + y * 8);
+			glVertex3f(-10.0 + x * 40, 0.0f, -19 + y * 8);
 			glEnd();
 		}
-		//���м�һ������
-		//�����ϱ�
-		glColor3f(1, 0.9647, 0.56078);
-		glPushMatrix();
-		glTranslatef(0, 8.1, -17.5 + y * 8);
-		glScalef(20, 0.2, 3);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, desk);
-		glutSolidCube(1.0f);
-		glPopMatrix();
-		//�����±�
-		glColor3f(1, 0.9647, 0.56078);
-		glPushMatrix();
-		glTranslatef(0, 6.1, -17.5 + y * 8);
-		glScalef(19, 0.2, 3);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, desk);
-		glutSolidCube(1.0f);
-		glPopMatrix();
-		//����ǰ��
-		glColor3f(1, 0.9647, 0.56078);
-		glPushMatrix();
-		glTranslatef(0, 7, -18.9 + y * 8);
-		glScalef(20, 2, 0.2);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, desk);
-		glutSolidCube(1.0f);
-		glPopMatrix();
-		//����
-		glColor3f(0.0, 0.0, 0.0);
-		glBegin(GL_LINES);
-		glLineWidth(3.0f);
-		glVertex3f(-10.0, 6.0f, -19 + y * 8);
-		glVertex3f(-10.0, 0.0f, -19 + y * 8);
-		glEnd();
-		glBegin(GL_LINES);
-		glLineWidth(3.0f);
-		glVertex3f(10.0, 6.0f, -19 + y * 8);
-		glVertex3f(10.0, 0.0f, -19 + y * 8);
-		glEnd();
-		glBegin(GL_LINES);
-		glLineWidth(3.0f);
-		glVertex3f(-10.0, 0.0f, -18 + y * 8);
-		glVertex3f(-10, 0.0f, -20 + y * 8);
-		glEnd();
-		glBegin(GL_LINES);
-		glLineWidth(3.0f);
-		glVertex3f(10, 0.0f, -18 + y * 8);
-		glVertex3f(10, 0.0f, -20 + y * 8);
-		glEnd();
 	}
 }
-//��������
+
+// Draw the chairs
 void drawchairs()
 {
+	// Chair colours
 	GLfloat chair[] = { 0.1,0.67,0.62 };
+
 	for (int j = 0; j <= 4; j++)
 	{
+		// Create chairs for each desk
 		for (int i = 0; i <= 1; i++)
 		{
-			//�����ӵײ�
+			// Bottom of chair
 			glColor3f(0.1, 0.67, 0.62);
 			glPushMatrix();
 			glTranslatef(-20 + i * 40, 3.1, -14.5 + j * 8);
-			glScalef(10, 0.2, 3);
+			glScalef(20, 0.2, 3);
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, chair);
 			glutSolidCube(1.0f);
 			glPopMatrix();
-			//�����ӿ���
+
+			// Back of chair
 			glColor3f(0.1, 0.67, 0.62);
 			glPushMatrix();
 			glTranslatef(-20 + i * 40, 5, -13 + j * 8);
-			glScalef(10, 4, 0.2);
+			glScalef(20, 4, 0.2);
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, chair);
 			glutSolidCube(1.0f);
 			glPopMatrix();
-			//��������
+
+			// Chair legs
 			glColor3f(0.0, 0.0, 0.0);
 			glBegin(GL_LINES);
 			glLineWidth(3.0f);
-			glVertex3f(-25 + i * 40, 3.0f, -13 + j * 8);
-			glVertex3f(-25 + i * 40, 0.0f, -13 + j * 8);
+			glVertex3f(-30 + i * 40, 3.0f, -13 + j * 8);
+			glVertex3f(-30 + i * 40, 0.0f, -13 + j * 8);
 			glEnd();
 			glColor3f(0.0, 0.0, 0.0);
 			glBegin(GL_LINES);
 			glLineWidth(3.0f);
-			glVertex3f(-15.0 + i * 40, 3.0f, -13 + j * 8);
-			glVertex3f(-15.0 + i * 40, 0.0f, -13 + j * 8);
-			glEnd();
-			glColor3f(0.0, 0.0, 0.0);
-			glBegin(GL_LINES);
-			glLineWidth(3.0f);
-			glVertex3f(-25.0 + i * 40, 0.0f, -12.5 + j * 8);
-			glVertex3f(-25 + i * 40, 0.0f, -13.5 + j * 8);
-			glEnd();
-			glColor3f(0.0, 0.0, 0.0);
-			glBegin(GL_LINES);
-			glLineWidth(3.0f);
-			glVertex3f(-15 + i * 40, 0.0f, -12.5 + j * 8);
-			glVertex3f(-15 + i * 40, 0.0f, -13.5 + j * 8);
+			glVertex3f(-10.0 + i * 40, 3.0f, -13 + j * 8);
+			glVertex3f(-10.0 + i * 40, 0.0f, -13 + j * 8);
 			glEnd();
 
 		}
-		//�����ӵײ�
-		glColor3f(0.1, 0.67, 0.62);
-		glPushMatrix();
-		glTranslatef(0, 3.1, -14.5 + j * 8);
-		glScalef(20, 0.2, 3);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, chair);
-		glutSolidCube(1.0f);
-		glPopMatrix();
-		//�����ӿ���
-		glColor3f(0.1, 0.67, 0.62);
-		glPushMatrix();
-		glTranslatef(0, 5, -13 + j * 8);
-		glScalef(20, 4, 0.2);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, chair);
-		glutSolidCube(1.0f);
-		glPopMatrix();
-		//��������
-		glColor3f(0.0, 0.0, 0.0);
-		glBegin(GL_LINES);
-		glLineWidth(3.0f);
-		glVertex3f(-10, 3.0f, -13 + j * 8);
-		glVertex3f(-10, 0.0f, -13 + j * 8);
-		glEnd();
-		glColor3f(0.0, 0.0, 0.0);
-		glBegin(GL_LINES);
-		glLineWidth(3.0f);
-		glVertex3f(10, 3.0f, -13 + j * 8);
-		glVertex3f(10, 0.0f, -13 + j * 8);
-		glEnd();
-		glColor3f(0.0, 0.0, 0.0);
-		glBegin(GL_LINES);
-		glLineWidth(3.0f);
-		glVertex3f(-10, 0.0f, -12.5 + j * 8);
-		glVertex3f(-10, 0.0f, -13.5 + j * 8);
-		glEnd();
-		glColor3f(0.0, 0.0, 0.0);
-		glBegin(GL_LINES);
-		glLineWidth(3.0f);
-		glVertex3f(10, 0.0f, -12.5 + j * 8);
-		glVertex3f(10, 0.0f, -13.5 + j * 8);
-		glEnd();
-
 	}
-
 }
-/*********************************************����ˢ�º���**********************************************/
+
+
+// Function for realtime refresh
 void reshape(int width, int height)
 {
-
 	WinWidth = width;
 	WinHeight = height;
 	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
@@ -557,35 +471,56 @@ void reshape(int width, int height)
 	glLoadIdentity();
 	gluLookAt(myEye.x, myEye.y, myEye.z, vPoint.x + 30 * sin(vAngle), vPoint.y, -30 * cos(vAngle), 0.0f, 1.0f, 0.0f);
 }
-/**************************����ͶӰ���������Ч��*******************************************************/
-void projectup()
-{
-	pro_up_down = pro_up_down + 1.0f;
-	if (pro_up_down >= 28.0f)
-		pro_up_down = 28.0f;
-	glutPostRedisplay();
 
-}
-void projectdown()
+// Function to initialise parameters
+void initialise()
 {
-	pro_up_down = pro_up_down - 1.0f;
-	if (pro_up_down <= 10.0f)
-		pro_up_down = 10.0f;
-	glutPostRedisplay();
+	glClearColor(0, 0, 0, 0);
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	
+	// Lighting
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, model_ambient);
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position0);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, mat_ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light);
+
+	glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, mat_ambient);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, white_light);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, white_light);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_COLOR_MATERIAL);
+
+	glShadeModel(GL_SMOOTH);
+	// Material shade for faces
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+	// Material reflection of specular light
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);	
+	glEnable(GL_DEPTH_TEST);
 }
-/*********************************************��ʾ����*****************************************************/
-void myDisplay()
+
+GLvoid OnIdle()
 {
-	// �����Ļ
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//���û��ƺ���
-	drawscence();
-	drawdesks();
-	drawchairs();
-	glFlush();
+	glutPostRedisplay();
 }
-/*******************************************��Ӧ��ͨ���̲�����w��s��a��d�Լ��˳�esc��*******************************/
+
+/*
+Changes display when certain keys (esc, w, s, a, d) are pressed:
+esc - Exit application
+w - move forward
+s - move backward
+a - move left
+d - move right
+Depending on angle currently viewing w, s, a, d can change.
+*/
 GLvoid OnKeyboard(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -618,10 +553,10 @@ GLvoid OnKeyboard(unsigned char key, int x, int y)
 	}
 	reshape(WinWidth, WinHeight);
 	glutPostRedisplay();
-
 }
-/****************************************��Ӧ������̲���******************************************************/
-GLvoid OnSpecial(int key, int x, int y)
+
+// Function responsible for special keyboard actions - like change of angle, etc.
+GLvoid OnDirection(int key, int x, int y)
 {
 	switch (key)
 	{
@@ -651,82 +586,42 @@ GLvoid OnSpecial(int key, int x, int y)
 		if (myEye.z <= -30)
 			myEye.z = -30;
 		break;
-	case GLUT_KEY_F1:
-		projectup();
-		break;
-	case GLUT_KEY_F2:
-		projectdown();
-		break;
-	case GLUT_KEY_F3:
-		glEnable(GL_LIGHT1);
-		break;
-	case GLUT_KEY_F4:
-		glDisable(GL_LIGHT1);
 	}
 	reshape(WinWidth, WinHeight);
 	glutPostRedisplay();
 }
-GLvoid OnIdle()
+
+// Display scene
+void myDisplay()
 {
-	glutPostRedisplay();
+	// Clear the screen
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// Call functions to draw
+	drawbigscence();
+	drawdesks();
+	drawchairs();
+	glFlush();
 }
-/*************************************��ʼ���������Ը���������г�ʼ��*********************************************/
-void initial()
+
+void printInst()
 {
-	glClearColor(0, 0, 0, 0);
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	/*********************************************�Եƹ���г�ʼ��****************************************************/
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, model_ambient);
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position0);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, mat_ambient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light);
-
-
-	glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, mat_ambient);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, white_light);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, white_light);
-
-
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_COLOR_MATERIAL);
-
-	/**********************************************************************************************/
-	glShadeModel(GL_SMOOTH);
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);	//ָ��������ɫ����
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);	//ָ�����϶Ծ����ķ���
-	glEnable(GL_DEPTH_TEST);
+	printf("Welcome to Group 1 Lab Scene:\n");
+	printf("These are the options to navigate:\n");
+	std::cout << "\033[1;31m";
+	printf("[Please ensure your caps lock is off]\n");
+	std::cout << "\033[0m";
+	printf("To move FORWARD: w\n");
+	printf("To move BACKWARD: s\n");
+	printf("To move LEFT: a\n");
+	printf("To move RIGHT: d\n\n");
+	printf("Viewing angle UP: UP ARROW\n");
+	printf("Viewing angle DOWN: DOWN ARROW\n");
+	printf("Look to your Left: LEFT ARROW\n");
+	printf("Look to your Right: RIGHT ARROW\n\n");
+	printf("To EXIT: esc");
 }
-void print()
-{
-	printf("**************************************************** \n");
-	printf(" \n");
-	printf("����������Ϣ��ʾ�� \n");
-	printf("�ϼ����¼��ֱ�����ӽ����º����� \n");
-	printf("������Ҽ��ֱ���������Ӻ����һ��� \n");
-	printf("w,s,a,d���ֱ��ʾ��ǰ�������ң�����ƽ�ƣ�ע����̴�Сд��\n");
-	printf("pgup��pgdn�ֱ������ǰ���κ�������� \n");
-	printf("F3��F4���ֱ���ƿ��ơ��ص� \n");
-	printf("F1��F2���ֱ����ͶӰ�Ƿ��º����� \n");
-	printf("ESC���˳����� \n");
-	printf(" \n");
-	printf("**************************************************** \n");
-	printf("***************��󣬱����л�Ҫ˵********************** \n");
-	printf("*********���ȸ�л���������openGL��ѧϰ�����Լ����ӳ���********** \n");
-	printf("********�����������ǲ�������ʵ,�������Ǿ���ģ�¶�����ҷ��...***** \n");
-	printf("*******ǰ��ǽ�ͺ���ǽ�Լ��컨������������,���²�û�з�Ӧ���ƹ��Ч��*** \n");
-	printf("****���кܶ�ɸĽ��ĵط���֪���������ǻ��˺ܶ�ܶ�ʱ��...***\n");
-	printf("************************������ʦ����ָ����************************ \n");
-	printf("**************************************************** ");
 
-}
 int main(int argc, char* argv[])
 {
 	myEye.x = 0;
@@ -742,23 +637,23 @@ int main(int argc, char* argv[])
 	glutInitWindowPosition(400, 0);
 	glutInitWindowSize(800, 600);
 	glutCreateWindow("Grap Proj");
-	initial();
+	initialise();
 	glutDisplayFunc(&myDisplay);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(OnKeyboard);
-	glutSpecialFunc(OnSpecial);
+	glutSpecialFunc(OnDirection);
 	glutIdleFunc(OnIdle);
-	/***************************************��������***********************************************/
-	texBlackboard = load_texture("blackboard.bmp");
+	
+	// Load texture Bitmaps into variables
+	texSmartBoard = load_texture("blackboard.bmp");
 	texWindow = load_texture("window.bmp");
-	texSound = load_texture("sound.bmp");
 	texCeiling = load_texture("ceiling.bmp");
-	texDoor = load_texture("door.bmp");
+	texDoor = load_texture("sliding_door.bmp");
 	texFloor = load_texture("floor.bmp");
 	texBackwall = load_texture("backwall.bmp");
-	/************************************************************************************************/
-	print();
-	//��ʼ��ʾ
+
+	printInst();
+	// Start scene
 	glutMainLoop();
 	return 0;
 }
