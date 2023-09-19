@@ -24,7 +24,7 @@ GLint	WinWidth;
 GLint	WinHeight;
 
 // Declare texture variables
-GLuint texSmartBoard, texWindow, texDesk, texCeiling, texDoor, texFloor, texBackwall;
+GLuint texSmartBoard, texWindow, texDesk, texCeiling, texDoor, texFloor, texBackwall, texChair;
 
 // Definition of viewpoint for viewer
 typedef struct EyePoint
@@ -360,7 +360,7 @@ void drawdesks()
 	// Specify desk colour
 	GLfloat desk[] = { 1,0.9647,0.56078 };
 
-	for (int y = 0; y <= 4; y++)
+	for (int y = 0; y <= 1; y++)
 	{
 		// Make tables on the left and right of lab
 		for (int x = 0; x <= 1; x++)
@@ -410,51 +410,218 @@ void drawdesks()
 	}
 }
 
+
+void drawSetChairs()
+{
+
+	glBegin(GL_QUADS);
+	glColor3f(1.0f, 1.0f, 0.0f);
+
+	// Front of seat part
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	glVertex3f(-2.0f, -0.2f, 2.0f);
+	glVertex3f(2.0f, -0.2f, 2.0f);
+	glVertex3f(2.0f, 0.2f, 2.0f);
+	glVertex3f(-2.0f, 0.2f, 2.0f);
+	//Right
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glVertex3f(2.0f, -0.2f, -2.0f);
+	glVertex3f(2.0f, 0.2f, -2.0f);
+	glVertex3f(2.0f, 0.2f, 2.0f);
+	glVertex3f(2.0f, -0.2f, 2.0f);
+	//Back
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glVertex3f(-2.0f, -0.2f, -2.0f);
+	glVertex3f(-2.0f, 0.2f, -2.0f);
+	glVertex3f(2.0f, 0.2f, -2.0f);
+	glVertex3f(2.0f, -0.2f, -2.0f);
+	//Left
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glVertex3f(-2.0f, -0.2f, -2.0f);
+	glVertex3f(-2.0f, -0.2f, 2.0f);
+	glVertex3f(-2.0f, 0.2f, 2.0f);
+	glVertex3f(-2.0f, 0.2f, -2.0f);
+	//top
+	glNormal3f(0.0f, 1.0f, 0.0f);
+	glVertex3f(2.0f, 0.2f, 2.0f);
+	glVertex3f(-2.0f, 0.2f, 2.0f);
+	glVertex3f(-2.0f, 0.2f, -2.0f);
+	glVertex3f(2.0f, 0.2f, -2.0f);
+	//bottom
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	glVertex3f(2.0f, -0.2f, 2.0f);
+	glVertex3f(-2.0f, -0.2f, 2.0f);
+	glVertex3f(-2.0f, -0.2f, -2.0f);
+	glVertex3f(2.0f, -0.2f, -2.0f);
+
+	//table front leg
+	//front
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	glVertex3f(1.8f, -0.2f, 1.6f);
+	glVertex3f(1.4f, -0.2f, 1.6f);
+	glVertex3f(1.4f, -3.0f, 1.6f);
+	glVertex3f(1.8f, -3.0f, 1.6f);
+	//back
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glVertex3f(1.8f, -0.2f, 1.2f);
+	glVertex3f(1.4f, -0.2f, 1.2f);
+	glVertex3f(1.4f, -3.0f, 1.2f);
+	glVertex3f(1.8f, -3.0f, 1.2f);
+	//right
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glVertex3f(1.8f, -0.2f, 1.6f);
+	glVertex3f(1.8f, -0.2f, 1.2f);
+	glVertex3f(1.8f, -3.0f, 1.2f);
+	glVertex3f(1.8f, -3.0f, 1.6f);
+	//left
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glVertex3f(1.4f, -0.2f, 1.6f);
+	glVertex3f(1.4f, -0.2f, 1.2f);
+	glVertex3f(1.4f, -3.0f, 1.2f);
+	glVertex3f(1.4f, -3.0f, 1.6f);
+
+	//back leg back
+	//front
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glVertex3f(1.8f, -0.2f, -1.2f);
+	glVertex3f(1.4f, -0.2f, -1.2f);
+	glVertex3f(1.4f, -3.0f, -1.2f);
+	glVertex3f(1.8f, -3.0f, -1.2f);
+	//back
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glVertex3f(1.8f, -0.2f, -1.6f);
+	glVertex3f(1.4f, -0.2f, -1.6f);
+	glVertex3f(1.4f, -3.0f, -1.6f);
+	glVertex3f(1.8f, -3.0f, -1.6f);
+	//right
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glVertex3f(1.8f, -0.2f, -1.6f);
+	glVertex3f(1.8f, -0.2f, -1.2f);
+	glVertex3f(1.8f, -3.0f, -1.2f);
+	glVertex3f(1.8f, -3.0f, -1.6f);
+	//left
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glVertex3f(1.4f, -0.2f, -1.6f);
+	glVertex3f(1.4f, -0.2f, -1.2f);
+	glVertex3f(1.4f, -3.0f, -1.2f);
+	glVertex3f(1.4f, -3.0f, -1.6f);
+
+	//leg left front
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	glVertex3f(-1.8f, -0.2f, 1.6f);
+	glVertex3f(-1.4f, -0.2f, 1.6f);
+	glVertex3f(-1.4f, -3.0f, 1.6f);
+	glVertex3f(-1.8f, -3.0f, 1.6f);
+	//back
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glVertex3f(-1.8f, -0.2f, 1.2f);
+	glVertex3f(-1.4f, -0.2f, 1.2f);
+	glVertex3f(-1.4f, -3.0f, 1.2f);
+	glVertex3f(-1.8f, -3.0f, 1.2f);
+	//right
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glVertex3f(-1.8f, -0.2f, 1.6f);
+	glVertex3f(-1.8f, -0.2f, 1.2f);
+	glVertex3f(-1.8f, -3.0f, 1.2f);
+	glVertex3f(-1.8f, -3.0f, 1.6f);
+	//left
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glVertex3f(-1.4f, -0.2f, 1.6f);
+	glVertex3f(-1.4f, -0.2f, 1.2f);
+	glVertex3f(-1.4f, -3.0f, 1.2f);
+	glVertex3f(-1.4f, -3.0f, 1.6f);
+
+	//left leg back front
+	//front
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glVertex3f(-1.8f, -0.2f, -1.2f);
+	glVertex3f(-1.4f, -0.2f, -1.2f);
+	glVertex3f(-1.4f, -3.0f, -1.2f);
+	glVertex3f(-1.8f, -3.0f, -1.2f);
+	//back
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glVertex3f(-1.8f, -0.2f, -1.6f);
+	glVertex3f(-1.4f, -0.2f, -1.6f);
+	glVertex3f(-1.4f, -3.0f, -1.6f);
+	glVertex3f(-1.8f, -3.0f, -1.6f);
+	//right
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glVertex3f(-1.8f, -0.2f, -1.6f);
+	glVertex3f(-1.8f, -0.2f, -1.2f);
+	glVertex3f(-1.8f, -3.0f, -1.2f);
+	glVertex3f(-1.8f, -3.0f, -1.6f);
+	//left
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glVertex3f(-1.4f, -0.2f, -1.6f);
+	glVertex3f(-1.4f, -0.2f, -1.2f);
+	glVertex3f(-1.4f, -3.0f, -1.2f);
+	glVertex3f(-1.4f, -3.0f, -1.6f);
+
+	glNormal3f(0.0f, 0.0f, -1.0f); // Change the normal direction
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texChair);
+	//RGBtoGLColour(153, 76, 0);
+	glBegin(GL_QUADS);
+	//chair back
+	//front
+	//glColor3f(1, 0, 0);
+	// CHANGE THE FOLLOWING
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.8f, 0.2f, 1.8f);   
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.8f, 0.2f, 1.8f);    
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.8f, 3.5f, 1.8f);     
+	glTexCoord2f(0.0f, 1.0f);glVertex3f(-1.8f, 3.5f, 1.8f);   
+
+	glVertex3f(1.8f, 0.2f, 1.8f);
+	glVertex3f(-1.8f, 0.2f, 1.8f);
+	glVertex3f(-1.8f, 3.5f, 1.8f);
+	glVertex3f(1.8f, 3.5f, 1.8f);
+	glDisable(GL_TEXTURE_2D);
+	glVertex3f(-1.8f, 0.2f, 2.0f);   
+	glVertex3f(1.8f, 0.2f, 2.0f);    
+	glVertex3f(1.8f, 3.5f, 2.0f);     
+	glVertex3f(-1.8f, 3.5f, 2.0f);   
+
+	glVertex3f(-1.8f, 0.2f, 2.0f);   
+	glVertex3f(-1.8f, 3.5f, 2.0f);   
+	glVertex3f(-1.8f, 3.5f, 1.8f);   
+	glVertex3f(-1.8f, 0.2f, 1.8f);   
+
+	glVertex3f(1.8f, 0.2f, 2.0f);    
+	glVertex3f(1.8f, 3.5f, 2.0f);    
+	glVertex3f(1.8f, 3.5f, 1.8f);    
+	glVertex3f(1.8f, 0.2f, 1.8f);    
+
+	glVertex3f(-1.8f, 3.5f, 2.0f);   
+	glVertex3f(-1.8f, 3.5f, 1.8f);   
+	glVertex3f(1.8f, 3.5f, 1.8f);    
+	glVertex3f(1.8f, 3.5f, 2.0f);    
+
+	glEnd();
+	
+}
+
 // Draw the chairs
 void drawchairs()
 {
-	// Chair colours
-	GLfloat chair[] = { 0.1,0.67,0.62 };
-
-	for (int j = 0; j <= 4; j++)
+	for (int j = 0; j <= 1; j++)
 	{
 		// Create chairs for each desk
 		for (int i = 0; i <= 1; i++)
 		{
-			// Bottom of chair
-			glColor3f(0.1, 0.67, 0.62);
 			glPushMatrix();
-			glTranslatef(-20 + i * 40, 3.1, -14.5 + j * 8);
-			glScalef(20, 0.2, 3);
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, chair);
-			glutSolidCube(1.0f);
+			glTranslatef(-25 + i * 12, 3.1, -10 + j * 15);
+			drawSetChairs();
 			glPopMatrix();
 
-			// Back of chair
-			glColor3f(0.1, 0.67, 0.62);
 			glPushMatrix();
-			glTranslatef(-20 + i * 40, 5, -13 + j * 8);
-			glScalef(20, 4, 0.2);
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, chair);
-			glutSolidCube(1.0f);
+			glTranslatef(15 + i * 12, 3.1, -10 + j * 15);
+			drawSetChairs();
 			glPopMatrix();
-
-			// Chair legs
-			glColor3f(0.0, 0.0, 0.0);
-			glBegin(GL_LINES);
-			glLineWidth(3.0f);
-			glVertex3f(-30 + i * 40, 3.0f, -13 + j * 8);
-			glVertex3f(-30 + i * 40, 0.0f, -13 + j * 8);
-			glEnd();
-			glColor3f(0.0, 0.0, 0.0);
-			glBegin(GL_LINES);
-			glLineWidth(3.0f);
-			glVertex3f(-10.0 + i * 40, 3.0f, -13 + j * 8);
-			glVertex3f(-10.0 + i * 40, 0.0f, -13 + j * 8);
-			glEnd();
-
+		
 		}
 	}
+	glutSwapBuffers();
 }
 
 
@@ -648,9 +815,10 @@ int main(int argc, char* argv[])
 	texSmartBoard = load_texture("blackboard.bmp");
 	texWindow = load_texture("window.bmp");
 	texCeiling = load_texture("ceiling.bmp");
-	texDoor = load_texture("sliding_door.bmp");
+	texDoor = load_texture("inside_door.bmp");
 	texFloor = load_texture("floor.bmp");
 	texBackwall = load_texture("backwall.bmp");
+	texChair = load_texture("chair.bmp");
 
 	printInst();
 	// Start scene
