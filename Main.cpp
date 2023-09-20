@@ -332,15 +332,14 @@ void drawbigscence()
 	glBindTexture(GL_TEXTURE_2D, texSmartBoard);
 	glBegin(GL_QUADS);
 	glNormal3f(0.0f, 0.0f, 1.0f);
-	glTexCoord2f(0.0f, 0.0f); glVertex3f(-20.0, 8.0f, -29.9f);
-	glTexCoord2f(0.0f, 1.0f); glVertex3f(-20.0, 18.0f, -29.9f);
-	glTexCoord2f(1.0f, 1.0f); glVertex3f(20.0, 18.0f, -29.9f);
-	glTexCoord2f(1.0f, 0.0f); glVertex3f(20.0, 8.0f, -29.9f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-15.0, 8.0f, -29.9f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-15.0, 23.0f, -29.9f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(15.0, 23.0f, -29.9f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(15.0, 8.0f, -29.9f);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 
 	// Door is drawn
-	//glColor3f(0.521f, 0.121f, 0.0547f);
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texDoor);
 	glBegin(GL_QUADS);
@@ -687,6 +686,8 @@ s - move backward
 a - move left
 d - move right
 Depending on angle currently viewing w, s, a, d can change.
+
+If r is pressed it resets the eyeview to the original.
 */
 GLvoid OnKeyboard(unsigned char key, int x, int y)
 {
@@ -713,6 +714,15 @@ GLvoid OnKeyboard(unsigned char key, int x, int y)
 		myEye.z += 0.5;
 		if (myEye.z >= 30)
 			myEye.z = 30;
+		break;
+	case 114:
+		myEye.x = 0;
+		myEye.y = 15;
+		myEye.z = 25;
+		vPoint.x = 0;
+		vPoint.y = 15;
+		vPoint.z = -30;
+		vAngle = 0;
 		break;
 	case 27:
 		exit(0);
@@ -785,7 +795,8 @@ void printInst()
 	printf("Viewing angle UP: UP ARROW\n");
 	printf("Viewing angle DOWN: DOWN ARROW\n");
 	printf("Look to your Left: LEFT ARROW\n");
-	printf("Look to your Right: RIGHT ARROW\n\n");
+	printf("Look to your Right: RIGHT ARROW\n");
+	printf("Reset view: r\n\n");
 	printf("To EXIT: esc");
 }
 
@@ -812,7 +823,7 @@ int main(int argc, char* argv[])
 	glutIdleFunc(OnIdle);
 	
 	// Load texture Bitmaps into variables
-	texSmartBoard = load_texture("blackboard.bmp");
+	texSmartBoard = load_texture("smartboard.bmp");
 	texWindow = load_texture("window.bmp");
 	texCeiling = load_texture("ceiling.bmp");
 	texDoor = load_texture("inside_door.bmp");
