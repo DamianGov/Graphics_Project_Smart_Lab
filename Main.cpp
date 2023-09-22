@@ -24,7 +24,7 @@ GLint	WinWidth;
 GLint	WinHeight;
 
 // Declare texture variables
-GLuint texSmartBoard, texWindow, texDesk, texCeiling, texDoor, texFloor, texBackwall, texChairBase, texChairLeg;
+GLuint texSmartBoard, texWindow, texDesk, texCeiling, texDoor, texFloor, texBackwall, texChairBase, texChairLeg, texTableTop;
 
 // Definition of viewpoint for viewer
 typedef struct EyePoint
@@ -353,6 +353,161 @@ void drawbigscence()
 
 }
 
+void drawSetDesks()
+{
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texTableTop);
+	glBegin(GL_QUADS);
+	// Back
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-10.0f, -0.2f, 4.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(10.0f, -0.2f, 4.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(10.0f, 0.2f, 4.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-10.0f, 0.2f, 4.0f);
+	// Right
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(10.0f, -0.2f, -4.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(10.0f, 0.2f, -4.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(10.0f, 0.2f, 4.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(10.0f, -0.2f, 4.0f);
+	// Front
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-10.0f, -0.2f, -4.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-10.0f, 0.2f, -4.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(10.0f, 0.2f, -4.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(10.0f, -0.2f, -4.0f);
+
+	//Left
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-10.0f, -0.2f, -4.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-10.0f, -0.2f, 4.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-10.0f, 0.2f, 4.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-10.0f, 0.2f, -4.0f);
+	//top
+	glNormal3f(0.0f, 1.0f, 0.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(10.0f, 0.2f, 4.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-10.0f, 0.2f, 4.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-10.0f, 0.2f, -4.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(10.0f, 0.2f, -4.0f);
+	//bottom
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(10.0f, -0.2f, 4.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-10.0f, -0.2f, 4.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-10.0f, -0.2f, -4.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(10.0f, -0.2f, -4.0f);
+	glEnd();
+
+	glBindTexture(GL_TEXTURE_2D, texChairLeg);
+	glBegin(GL_QUADS);
+	//table front leg
+	//front
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(9.8f, -0.2f, 3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(9.4f, -0.2f, 3.6f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(9.4f, -10.0f, 3.6f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(9.8f, -10.0f, 3.6f);
+	//back
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(9.8f, -0.2f, 3.2f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(9.4f, -0.2f, 3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(9.4f, -10.0f, 3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(9.8f, -10.0f, 3.2f);
+	//right
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(9.8f, -0.2f, 3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(9.8f, -0.2f, 3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(9.8f, -10.0f, 3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(9.8f, -10.0f, 3.6f);
+	//left
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(9.4f, -0.2f, 3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(9.4f, -0.2f, 3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(9.4f, -10.0f, 3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(9.4f, -10.0f, 3.6f);
+
+	//back leg back
+	//front
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(9.8f, -0.2f, -3.2f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(9.4f, -0.2f, -3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(9.4f, -10.0f, -3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(9.8f, -10.0f, -3.2f);
+	//back
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(9.8f, -0.2f, -3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(9.4f, -0.2f, -3.6f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(9.4f, -10.0f, -3.6f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(9.8f, -10.0f, -3.6f);
+	//right
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(9.8f, -0.2f, -3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(9.8f, -0.2f, -3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(9.8f, -10.0f, -3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(9.8f, -10.0f, -3.6f);
+	//left								 
+	glNormal3f(1.0f, 0.0f, 0.0f);		 
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(9.4f, -0.2f, -3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(9.4f, -0.2f, -3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(9.4f, -10.0f, -3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(9.4f, -10.0f, -3.6f);
+
+	//leg left front
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-9.8f, -0.2f, 3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-9.4f, -0.2f, 3.6f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-9.4f, -10.0f, 3.6f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-9.8f, -10.0f, 3.6f);
+	//back
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-9.8f, -0.2f, 3.2f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-9.4f, -0.2f, 3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-9.4f, -10.0f, 3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-9.8f, -10.0f, 3.2f);
+	//right								  
+	glNormal3f(1.0f, 0.0f, 0.0f);		  
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-9.8f, -0.2f, 3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-9.8f, -0.2f, 3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-9.8f, -10.0f, 3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-9.8f, -10.0f, 3.6f);
+	//left								  
+	glNormal3f(-1.0f, 0.0f, 0.0f);		  
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-9.4f, -0.2f, 3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-9.4f, -0.2f, 3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-9.4f, -10.0f, 3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-9.4f, -10.0f, 3.6f);
+
+	//left leg back front
+	//front
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-9.8f, -0.2f, -3.2f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-9.4f, -0.2f, -3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-9.4f, -10.0f, -3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-9.8f, -10.0f, -3.2f);
+	//back								  
+	glNormal3f(0.0f, 0.0f, -1.0f);		  
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-9.8f, -0.2f, -3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-9.4f, -0.2f, -3.6f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-9.4f, -10.0f, -3.6f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-9.8f, -10.0f, -3.6f);
+	//right								  
+	glNormal3f(1.0f, 0.0f, 0.0f);		  
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-9.8f, -0.2f, -3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-9.8f, -0.2f, -3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-9.8f, -10.0f, -3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-9.8f, -10.0f, -3.6f);
+	//left								  
+	glNormal3f(-1.0f, 0.0f, 0.0f);		  
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-9.4f, -0.2f, -3.6f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-9.4f, -0.2f, -3.2f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-9.4f, -10.0f, -3.2f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-9.4f, -10.0f, -3.6f);
+
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+}
+
+
+
 // Draw the desks
 void drawdesks()
 {
@@ -364,49 +519,18 @@ void drawdesks()
 		// Make tables on the left and right of lab
 		for (int x = 0; x <= 1; x++)
 		{
-			// Top of Table
-			glColor3f(1, 0.9647, 0.56078);
 			glPushMatrix();
-			glTranslatef(-20.0 + x * 40, 8.1, -17.5 + y * 8);
-			glScalef(20, 0.2, 3);
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, desk);
-			glutSolidCube(1.0f);
+			glTranslatef(-20.0 + x * 40, 7, -16 + y * 20);
+			drawSetDesks();
 			glPopMatrix();
 
-			// Underneath Table
-			glColor3f(1, 0.9647, 0.56078);
 			glPushMatrix();
-			glTranslatef(-20.0 + x * 40, 6.1, -17.5 + y * 8);
-			glScalef(19, 0.2, 3);
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, desk);
-			glutSolidCube(1.0f);
+			glTranslatef(-20.0 + x * 40, 7, -16 + y * 20);
+			drawSetDesks();
 			glPopMatrix();
-
-			//Front of Table
-			glColor3f(1, 0.9647, 0.56078);
-			glPushMatrix();
-			glTranslatef(-20.0 + x * 40, 7, -18.9 + y * 8);
-			glScalef(20, 2, 0.2);
-			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, desk);
-			glutSolidCube(1.0f);
-			glPopMatrix();
-			
-			// Legs of table
-			glColor3f(0.0, 0.0, 0.0);
-			glBegin(GL_LINES);
-			glLineWidth(5.0f);
-			// Vertices of left leg
-			glVertex3f(-30.0 + x * 40, 6.0f, -19 + y * 8);
-			glVertex3f(-30.0 + x * 40, 0.0f, -19 + y * 8);
-			glEnd();
-			glBegin(GL_LINES);
-			glLineWidth(5.0f);
-			// Vertices of right leg
-			glVertex3f(-10.0 + x * 40, 6.0f, -19 + y * 8);
-			glVertex3f(-10.0 + x * 40, 0.0f, -19 + y * 8);
-			glEnd();
 		}
 	}
+	glutSwapBuffers();
 }
 
 
@@ -483,11 +607,8 @@ void drawSetChairs()
 	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.8f, 4.5f, 1.8f);
 	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.8f, 4.5f, 1.8f);
 	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.8f, 4.5f, 2.0f);
-
 	glEnd();
-	glDisable(GL_TEXTURE_2D);
 
-	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texChairLeg);
 	glBegin(GL_QUADS);
 	//table front leg
@@ -592,15 +713,9 @@ void drawSetChairs()
 	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.4f, -0.2f, -1.2f);
 	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.4f, -3.0f, -1.2f);
 	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.4f, -3.0f, -1.6f);
-	//glEnd();
-	glNormal3f(0.0f, 0.0f, -1.0f); // Change the normal direction
 
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
-	
-
-	
-	
 }
 
 // Draw the chairs
@@ -612,18 +727,18 @@ void drawchairs()
 		for (int i = 0; i <= 1; i++)
 		{
 			glPushMatrix();
-			glTranslatef(-25 + i * 12, 3.1, -10 + j * 15);
+			glTranslatef(-25 + i * 12, 3.1, -5 + j * 20);
 			drawSetChairs();
 			glPopMatrix();
 
 			glPushMatrix();
-			glTranslatef(15 + i * 12, 3.1, -10 + j * 15);
+			glTranslatef(15 + i * 12, 3.1, -5 + j * 20);
 			drawSetChairs();
 			glPopMatrix();
 		
 		}
 	}
-	glutSwapBuffers();
+	//glutSwapBuffers();
 }
 
 
@@ -779,8 +894,8 @@ void myDisplay()
 
 	// Call functions to draw
 	drawbigscence();
-	drawdesks();
 	drawchairs();
+	drawdesks();
 	glFlush();
 }
 
@@ -834,6 +949,7 @@ int main(int argc, char* argv[])
 	texBackwall = load_texture("backwall.bmp");
 	texChairBase = load_texture("chair_base.bmp");
 	texChairLeg = load_texture("chair_leg.bmp");
+	texTableTop = load_texture("table_top.bmp");
 
 	printInst();
 	// Start scene
