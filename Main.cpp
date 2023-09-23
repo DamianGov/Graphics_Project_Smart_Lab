@@ -1,17 +1,18 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
-#include<gl/glut.h>
-#include<windows.h>
-#include<math.h>
+#include <gl/glut.h>
+#include <GL/freeglut.h>
+#include <windows.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 
 // Global Declaration of variables
 // Initialisation of Arrays
-GLfloat light[] = { 1.0,1.0,1.0,1 };
+GLfloat light[] = { 0.5,0.5,0.5,1 };
 GLfloat light_position0[] = { 0,28,20,1.0 };
-GLfloat light_position1[] = { 0,28,-20,1.0 };
-GLfloat white_light[] = { 1.0,1.0,1.0,1.0 };
+//GLfloat light_position1[] = { 0,28,-20,1.0 };
+//GLfloat white_light[] = { 1.0,1.0,1.0,1.0 };
 GLfloat model_ambient[] = { 0.05f,0.05f,0.05f,1.0f };
 GLfloat mat_specular[] = { 0.8,1.0,1.0,1.0 };
 GLfloat mat_shininess[] = { 5.0 };
@@ -24,7 +25,7 @@ GLint	WinWidth;
 GLint	WinHeight;
 
 // Declare texture variables
-GLuint texSmartBoard, texWindow, texDesk, texCeiling, texDoor, texFloor, texBackwall, texChairBase, texChairLeg, texTableTop;
+GLuint texSmartBoard, texWindow, texDesk, texCeiling, texDoor, texFloor, texWall, texChairBase, texChairLeg, texTableTop;
 
 // Definition of viewpoint for viewer
 typedef struct EyePoint
@@ -47,6 +48,7 @@ int is_Num_Pow_2(int n)
 
 	return (n & (n - 1)) == 0;
 }
+
 
 // Function to convert RGB to OpenGL Colour Codes
 void RGBtoGLColour(int r, int g, int b)
@@ -261,22 +263,34 @@ void drawbigscence()
 	glEnd();
 
 	// Left wall is drawn
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texWall);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	glBegin(GL_QUADS);
-	glNormal3f(1.0f, 0.0f, 0.0f);	                  
+	glNormal3f(1.0f, 0.0f, 0.0f);	 
+	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(-40.0f, 0.0f, 30.0f);
+	glTexCoord2f(0.0f, 1.0f);
 	glVertex3f(-40.0f, 30.0f, 30.0f);
+	glTexCoord2f(1.0f, 1.0f);
 	glVertex3f(-40.0f, 30.0f, -30.0f);
+	glTexCoord2f(1.0f, 0.0f);
 	glVertex3f(-40.0f, 0.0f, -30.0f);
 	glEnd();
 
 	// Right wall is drawn
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texWall);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	glBegin(GL_QUADS);
 	glNormal3f(-1.0f, 0.0f, 0.0f); 
+	glTexCoord2f(0.0f, 0.0f);
 	glVertex3f(40.0f, 0.0f, 30.0f);
+	glTexCoord2f(0.0f, 1.0f);
 	glVertex3f(40.0f, 30.0f, 30.0f);
+	glTexCoord2f(1.0f, 1.0f);
 	glVertex3f(40.0f, 30.0f, -30.0f);
+	glTexCoord2f(1.0f, 0.0f);
 	glVertex3f(40.0f, 0.0f, -30.0f);
 	glEnd();
 
@@ -297,7 +311,7 @@ void drawbigscence()
 
 	// Backwall is drawn
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texBackwall);
+	glBindTexture(GL_TEXTURE_2D, texWall);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	glBegin(GL_QUADS);
 	glNormal3f(0.0f, 0.0f, 1.0f);
@@ -313,7 +327,7 @@ void drawbigscence()
 
 	// Frontwall is drawn
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texBackwall);
+	glBindTexture(GL_TEXTURE_2D, texWall);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	glBegin(GL_QUADS);
 	glNormal3f(0.0f, 0.0f, 1.0f);
@@ -353,7 +367,7 @@ void drawbigscence()
 
 }
 
-void drawSetDesks()
+void drawSetTables()
 {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, texTableTop);
@@ -384,11 +398,13 @@ void drawSetDesks()
 	glTexCoord2f(1.0f, 1.0f); glVertex3f(-10.0f, 0.2f, 4.0f);
 	glTexCoord2f(1.0f, 0.0f); glVertex3f(-10.0f, 0.2f, -4.0f);
 	//top
+
 	glNormal3f(0.0f, 1.0f, 0.0f);
 	glTexCoord2f(0.0f, 0.0f); glVertex3f(10.0f, 0.2f, 4.0f);
 	glTexCoord2f(0.0f, 1.0f); glVertex3f(-10.0f, 0.2f, 4.0f);
 	glTexCoord2f(1.0f, 1.0f); glVertex3f(-10.0f, 0.2f, -4.0f);
 	glTexCoord2f(1.0f, 0.0f); glVertex3f(10.0f, 0.2f, -4.0f);
+
 	//bottom
 	glNormal3f(0.0f, -1.0f, 0.0f);
 	glTexCoord2f(0.0f, 0.0f); glVertex3f(10.0f, -0.2f, 4.0f);
@@ -508,11 +524,9 @@ void drawSetDesks()
 
 
 
-// Draw the desks
-void drawdesks()
+// Draw the tables
+void drawtables()
 {
-	// Specify desk colour
-	GLfloat desk[] = { 1,0.9647,0.56078 };
 
 	for (int y = 0; y <= 1; y++)
 	{
@@ -521,12 +535,12 @@ void drawdesks()
 		{
 			glPushMatrix();
 			glTranslatef(-20.0 + x * 40, 7, -16 + y * 20);
-			drawSetDesks();
+			drawSetTables();
 			glPopMatrix();
 
 			glPushMatrix();
 			glTranslatef(-20.0 + x * 40, 7, -16 + y * 20);
-			drawSetDesks();
+			drawSetTables();
 			glPopMatrix();
 		}
 	}
@@ -774,13 +788,15 @@ void initialise()
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light);
 
-	glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, mat_ambient);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, white_light);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, white_light);
+	//GLfloat sunlight_position[] = { 10.0f, 5.0f, 0.0f, 1.0f }; // Directional sunlight
+	//GLfloat sunlight_diffuse[] = { 1.0f, 1.0f, 0.0f, 1.0f }; // White sunlight
+	//glLightfv(GL_LIGHT1, GL_POSITION, sunlight_direction);
+	//glLightfv(GL_LIGHT1, GL_DIFFUSE, sunlight_diffuse);
+
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+	//glEnable(GL_LIGHT1);
 	glEnable(GL_COLOR_MATERIAL);
 
 	glShadeModel(GL_SMOOTH);
@@ -895,17 +911,18 @@ void myDisplay()
 	// Call functions to draw
 	drawbigscence();
 	drawchairs();
-	drawdesks();
+	drawtables();
 	glFlush();
 }
 
 void printInst()
 {
-	printf("Welcome to Group 1 Lab Scene:\n");
-	printf("These are the options to navigate:\n");
+	printf("Welcome to Group 1 Lab Scene:\n\n");
 	std::cout << "\033[1;31m";
-	printf("[Please ensure your caps lock is off]\n");
+	printf("[Please ensure your caps lock is off]\n\n");
 	std::cout << "\033[0m";
+	printf("These are the options to navigate:\n");
+
 	printf("To move FORWARD: w\n");
 	printf("To move BACKWARD: s\n");
 	printf("To move LEFT: a\n");
@@ -946,10 +963,11 @@ int main(int argc, char* argv[])
 	texCeiling = load_texture("ceiling.bmp");
 	texDoor = load_texture("inside_door.bmp");
 	texFloor = load_texture("floor.bmp");
-	texBackwall = load_texture("backwall.bmp");
 	texChairBase = load_texture("chair_base.bmp");
 	texChairLeg = load_texture("chair_leg.bmp");
 	texTableTop = load_texture("table_top.bmp");
+	texWall = load_texture("wall.bmp");
+
 
 	printInst();
 	// Start scene
